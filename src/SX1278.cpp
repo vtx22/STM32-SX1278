@@ -1,18 +1,22 @@
 #include "SX1278.hpp"
 
+#ifdef PRINTER_DEBUG
+extern PRINTER printer;
+#endif
+
 SX1278::SX1278(SPI_HandleTypeDef *spi, GPIO_TypeDef *portSS, uint16_t pinSS) : _spi(spi), _portSS(portSS), _pinSS(pinSS)
 {
-   pinConfig();
-   __HAL_SPI_ENABLE(_spi);
-   init();
+	pinConfig();
+	__HAL_SPI_ENABLE(_spi);
+	init();
 }
 
 SX1278::SX1278(SPI_HandleTypeDef *spi, GPIO_TypeDef *portSS, uint16_t pinSS, GPIO_TypeDef *portRST, uint16_t pinRST) : _spi(spi), _portSS(portSS), _pinSS(pinSS), _portRST(portRST), _pinRST(pinRST)
 {
-   resetPinDefined = true;
-   pinConfig();
-   __HAL_SPI_ENABLE(_spi);
-   init();
+	resetPinDefined = true;
+	pinConfig();
+	__HAL_SPI_ENABLE(_spi);
+	init();
 }
 
 SX1278::~SX1278()
@@ -22,9 +26,16 @@ SX1278::~SX1278()
 
 bool SX1278::init()
 {
+#ifdef PRINTER_DEBUG
+	printer.printString("SX1278 Init...");
+#endif
    hwReset();
 
    uint8_t version = readReg(REG_VERSION);
+#ifdef PRINTER_DEBUG
+   printer.printString("Version is:");
+   printer.printFloat(version);
+#endif
    if (version != 0x12)
    {
       return false;
@@ -34,7 +45,7 @@ bool SX1278::init()
    setMode(MODE_SLEEP);
 
    // set frequency
-   setFrequency(frequency);
+   setFrequency(_frequency);
 
    // set base addresses
    writeReg(REG_FIFO_TX_BASE_ADDR, 0);
@@ -47,10 +58,13 @@ bool SX1278::init()
    writeReg(REG_MODEM_CONFIG_3, 0x04);
 
    // set output power to 17 dBm
-   setTxPower(17);
+   setTxPower(17 ,1);
 
    // put in standby mode
    setMode(MODE_STDBY);
+#ifdef PRINTER_DEBUG
+   printer.printString("SX1278 Standby! Init Complete!");
+#endif
 }
 
 void SX1278::setMode(uint8_t mode)
@@ -155,9 +169,31 @@ void SX1278::setSignalBandwidth(long sbw)
    setLdoFlag();
 }
 
+size_t SX1278::write(const uint8_t *buffer, size_t size)
+{
+   int currentLength = readReg(REG_PAYLOAD_LENGTH);
+
+   // check size
+   if ((currentLength + size) > MAX_PKT_LENGTH)
+   {
+      size = MAX_PKT_LENGTH - currentLength;
+   }
+
+   // write data
+   for (size_t i = 0; i < size; i++)
+   {
+      writeReg(REG_FIFO, buffer[i]);
+   }
+
+   // update length
+   writeReg(REG_PAYLOAD_LENGTH, currentLength + size);
+
+   return size;
+}
+
 long SX1278::getSignalBandwidth()
 {
-   byte bw = (readReg(REG_MODEM_CONFIG_1) >> 4);
+   uint8_t bw = (readReg(REG_MODEM_CONFIG_1) >> 4);
 
    switch (bw)
    {
@@ -195,7 +231,8 @@ void SX1278::setLdoFlag()
    bool ldoOn = symbolDuration > 16;
 
    uint8_t config3 = readReg(REG_MODEM_CONFIG_3);
-   bitWrite(config3, 3, ldoOn);
+   //bitWrite(config3, 3, ldoOn);
+   config3 = config3 & (ldoOn << 3);
    writeReg(REG_MODEM_CONFIG_3, config3);
 }
 
@@ -294,7 +331,7 @@ int SX1278::parsePacket(int size)
       writeReg(REG_FIFO_ADDR_PTR, readReg(REG_FIFO_RX_CURRENT_ADDR));
 
       // put in standby mode
-      idle();
+      setMode(MODE_STDBY);
    }
    else if (readReg(REG_OP_MODE) != (MODE_LONG_RANGE_MODE | MODE_RX_SINGLE))
    {
@@ -418,7 +455,7 @@ void SX1278::setGain(uint8_t gain)
    }
 
    // set to standby
-   idle();
+   setMode(MODE_STDBY);
 
    // set gain
    if (gain == 0)
@@ -439,7 +476,7 @@ void SX1278::setGain(uint8_t gain)
    }
 }
 
-byte SX1278::random()
+uint8_t SX1278::random()
 {
    return readReg(REG_RSSI_WIDEBAND);
 }
@@ -494,13 +531,13 @@ int SX1278::read()
 long SX1278::packetFrequencyError()
 {
    int32_t freqError = 0;
-   freqError = static_cast<int32_t>(readReg(REG_FREQ_ERROR_MSB) & B111);
+   freqError = static_cast<int32_t>(readReg(REG_FREQ_ERROR_MSB) & 0b111);
    freqError <<= 8L;
    freqError += static_cast<int32_t>(readReg(REG_FREQ_ERROR_MID));
    freqError <<= 8L;
    freqError += static_cast<int32_t>(readReg(REG_FREQ_ERROR_LSB));
 
-   if (readReg(REG_FREQ_ERROR_MSB) & B1000)
+   if (readReg(REG_FREQ_ERROR_MSB) & 0b1000)
    {                       // Sign bit is on
       freqError -= 524288; // B1000'0000'0000'0000'0000
    }
@@ -569,14 +606,17 @@ uint8_t SX1278::readReg(uint8_t reg)
 
 void SX1278::writeReg(uint8_t reg, uint8_t value)
 {
-   uint8_t msg = {reg | 0x80, value};
+   uint8_t msg[2] = {reg | 0x80, value};
    setSS(false);
-   HAL_SPI_Transmit(_spi, &msg, 2, 1);
+   HAL_SPI_Transmit(_spi, msg, 2, 1);
    setSS(true);
 }
 
 void SX1278::pinConfig()
 {
+#ifdef PRINTER_DEBUG
+	printer.printString("SX1278 Pin Config");
+#endif
    GPIO_InitTypeDef GPIO_InitStruct = {0};
 
    GPIO_InitStruct.Pin = _pinSS;
@@ -600,6 +640,9 @@ void SX1278::pinConfig()
 
 void SX1278::hwReset()
 {
+#ifdef PRINTER_DEBUG
+	printer.printString("SX1278 Resetting...");
+#endif
    if (!resetPinDefined)
    {
       return;
@@ -612,12 +655,5 @@ void SX1278::hwReset()
 
 void SX1278::setSS(bool state)
 {
-   if (state)
-   {
-      HAL_GPIO_WritePin(_portSS, _pinSS, GPIO_PIN_SET);
-   }
-   else
-   {
-      HAL_GPIO_WritePin(_portSS, _pinSS, GPIO_PIN_RESET);
-   }
+	HAL_GPIO_WritePin(_portSS, _pinSS, state ? (GPIO_PIN_SET) : (GPIO_PIN_RESET));
 }

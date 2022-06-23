@@ -1,6 +1,11 @@
 #pragma once
 #include "stm32f1xx_hal.h"
 
+#ifdef PRINTER_DEBUG
+#include "Printer.hpp"
+#endif
+
+
 #define REG_FIFO 0x00
 #define REG_OP_MODE 0x01
 #define REG_FRF_MSB 0x06
@@ -45,6 +50,9 @@
 #define MODE_RX_CONTINUOUS 0x05
 #define MODE_RX_SINGLE 0x06
 
+#define PA_OUTPUT_RFO_PIN          0
+#define PA_OUTPUT_PA_BOOST_PIN     1
+
 // PA config
 #define PA_BOOST 0x80
 
@@ -66,18 +74,41 @@ public:
    SX1278(SPI_HandleTypeDef *spi, GPIO_TypeDef *portSS, uint16_t pinSS, GPIO_TypeDef *portRST, uint16_t pinRST);
    ~SX1278();
 
+   void setTxPower(uint8_t level, int outputPin);
+   void setFrequency(long frequency);
+
+   void setSpreadingFactor(int sf);
+   void setSignalBandwidth(long sbw);
+
+   void disableCrc();
+   void enableCrc();
+
+   void setSyncWord(int sw);
+   void setPreambleLength(long length);
+
+   int beginPacket(int implicitHeader);
+   int endPacket();
+   int parsePacket(int size);
+   int read();
+   int available();
+   void receive(int size);
+
+   int rssi();
+   int packetRssi();
+   float packetSnr();
+   size_t write(const uint8_t *buffer, size_t size);
+
 private:
    uint8_t readReg(uint8_t reg);
    void writeReg(uint8_t reg, uint8_t value);
    void hwReset();
    void setMode(uint8_t mode);
-   void setTxPower(uint8_t level);
-   void setFrequency(long frequency);
 
-   void setSpreadingFactor(int sf);
+
+
    int getSpreadingFactor();
 
-   void setSignalBandwidth(long sbw);
+
    long getSignalBandwidth();
    void setLdoFlag();
 
@@ -89,33 +120,24 @@ private:
    void disableInvertIQ();
    void enableInvertIQ();
 
-   void disableCrc();
-   void enableCrc();
 
-   void setSyncWord(int sw);
-   void setPreambleLength(long length);
+
+
 
    void setGain(uint8_t gain);
-   byte random();
+   uint8_t random();
    void setOCP(uint8_t mA);
 
    void setCodingRate4(int denominator);
 
-   int beginPacket(int implicitHeader);
-   int endPacket();
-   int parsePacket(int size);
-   int read();
-   int available();
-   void receive(int size);
+
 
    int peek();
-   int rssi();
-   int packetRssi();
-   float packetSnr();
+
 
    long packetFrequencyError();
 
-   pinConfig();
+   void pinConfig();
    bool init();
    void setSS(bool state);
 
