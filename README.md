@@ -3,6 +3,8 @@ C++ Library for interfacing the SX1278 LoRa Module with a STM32 like the STM32F1
 
 Based heavily on the Arduino LoRa Library https://github.com/sandeepmistry/arduino-LoRa
 
+**IMPORTANT: The Lib is still incomplete and in testing. Many features are not implemented. Not recommended for use as of right now!**
+
 # USAGE
 
 ## Include Library
