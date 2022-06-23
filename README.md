@@ -11,7 +11,7 @@ Based heavily on the Arduino LoRa Library https://github.com/sandeepmistry/ardui
 #include "SX1278.hpp"
 ```
 ## Initialize SX1278 Object
-Initilize with SPI1 and Pin PA4 as Slave Select
+Initilize with SPI1 and Pin PA4 as Slave Select without Hardware Reset
 ```
 SX1278 sx = SX1278(&hspi1, GPIOA, GPIO_PIN_4);
 ```
