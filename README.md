@@ -19,7 +19,6 @@ Initilize with SPI1 and Pin PA4 as Slave Select and Pin PB13 as Hardware Reset P
 ```
 SX1278 sx = SX1278(&hspi1, GPIOA, GPIO_PIN_4, GPIOB, GPIO_PIN_13);
 ```
-
 ## Transmit Data
 ```
 char msg[] = "TEST";        //Message to send
