@@ -26,5 +26,5 @@ SX1278 sx = SX1278(&hspi1, GPIOA, GPIO_PIN_4, GPIOB, GPIO_PIN_13);
 char msg[] = "TEST";        // Message to send
 sx.beginPacket(0);          // Set SX1278 to Transmit Mode
 sx.write(msg, 4);           // Transmit Message (with size = 4 bytes)
-sx.endPacket();             // Wait for Transmit to be complete
+sx.endPacket(false);        // Wait for Transmit to be complete, with async = false --> endPacket blocks until transmit is complete
 ```
