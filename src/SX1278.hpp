@@ -1,7 +1,7 @@
 #pragma once
 #include "stm32f1xx_hal.h"
 #include "stm32f1xx_hal_gpio.h"
-
+#include <vector>
 
 #define PRINTER_DEBUG
 #ifdef PRINTER_DEBUG
@@ -101,6 +101,9 @@ public:
    int packetRssi();
    float packetSnr();
    size_t write(const uint8_t *buffer, size_t size);
+   size_t write(const char* buffer, size_t size);
+   size_t write(std::vector<uint8_t> data);
+   size_t write(std::vector<char> data);
 
 private:
    uint8_t readReg(uint8_t reg);

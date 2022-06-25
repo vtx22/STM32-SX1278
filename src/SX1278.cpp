@@ -211,6 +211,21 @@ size_t SX1278::write(const uint8_t *buffer, size_t size)
    return size;
 }
 
+size_t SX1278::write(std::vector<uint8_t> data)
+{
+	return write(&data[0], data.size());
+}
+
+size_t SX1278::write(std::vector<char> data)
+{
+	return write(&data[0], data.size());
+}
+
+size_t SX1278::write(const char* buffer, size_t size)
+{
+	return write((uint8_t*)buffer, size);
+}
+
 long SX1278::getSignalBandwidth()
 {
    uint8_t bw = (readReg(REG_MODEM_CONFIG_1) >> 4);
