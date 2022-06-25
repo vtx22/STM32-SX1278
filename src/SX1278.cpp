@@ -6,34 +6,33 @@ extern PRINTER printer;
 
 SX1278::SX1278(SPI_HandleTypeDef *spi, GPIO_TypeDef *portSS, uint16_t pinSS) : _spi(spi), _portSS(portSS), _pinSS(pinSS)
 {
-	pinConfig();
-	__HAL_SPI_ENABLE(_spi);
-	init();
+   pinConfig();
+   __HAL_SPI_ENABLE(_spi);
+   init();
 }
 
 SX1278::SX1278(SPI_HandleTypeDef *spi, GPIO_TypeDef *portSS, uint16_t pinSS, GPIO_TypeDef *portRST, uint16_t pinRST) : _spi(spi), _portSS(portSS), _pinSS(pinSS), _portRST(portRST), _pinRST(pinRST)
 {
-	resetPinDefined = true;
-	pinConfig();
-	__HAL_SPI_ENABLE(_spi);
-	init();
+   resetPinDefined = true;
+   pinConfig();
+   __HAL_SPI_ENABLE(_spi);
+   init();
 }
 
 void SX1278::setDIO0(GPIO_TypeDef *portDIO0, uint16_t pinDIO0)
 {
-	_portDIO0 = portDIO0;
-	_pinDIO0 = pinDIO0;
+   _portDIO0 = portDIO0;
+   _pinDIO0 = pinDIO0;
 
-	GPIO_InitTypeDef GPIO_InitStruct = {0};
+   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-	GPIO_InitStruct.Pin = _pinDIO0;
-	GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-	HAL_GPIO_Init(_portDIO0, &GPIO_InitStruct);
+   GPIO_InitStruct.Pin = _pinDIO0;
+   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+   GPIO_InitStruct.Pull = GPIO_NOPULL;
+   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+   HAL_GPIO_Init(_portDIO0, &GPIO_InitStruct);
 
-	useDIO0 = true;
-
+   useDIO0 = true;
 }
 
 SX1278::~SX1278()
@@ -44,14 +43,14 @@ SX1278::~SX1278()
 bool SX1278::init()
 {
 #ifdef PRINTER_DEBUG
-	printer.printString("SX1278 Init...");
+   printer.print("SX1278 Init...\n");
 #endif
    hwReset();
 
    uint8_t version = readReg(REG_VERSION);
 #ifdef PRINTER_DEBUG
-   printer.printString("Version is:");
-   printer.printFloat(version);
+   printer.print("Version is:");
+   printer.print(version);
 #endif
    if (version != 0x12)
    {
@@ -77,14 +76,15 @@ bool SX1278::init()
    // set auto AGC
    writeReg(REG_MODEM_CONFIG_3, 0x04);
 
-   // set output power to 17 dBm
-   setTxPower(17 ,1);
+   // set output power
+   setTxPower(20, PA_OUTPUT_PA_BOOST_PIN);
 
    // put in standby mode
    setMode(MODE_STDBY);
 #ifdef PRINTER_DEBUG
-   printer.printString("SX1278 Standby! Init Complete!");
+   printer.print("\nSX1278 Standby! Init Complete!\n");
 #endif
+   return true;
 }
 
 void SX1278::setMode(uint8_t mode)
@@ -213,17 +213,17 @@ size_t SX1278::write(const uint8_t *buffer, size_t size)
 
 size_t SX1278::write(std::vector<uint8_t> data)
 {
-	return write(&data[0], data.size());
+   return write(&data[0], data.size());
 }
 
 size_t SX1278::write(std::vector<char> data)
 {
-	return write(&data[0], data.size());
+   return write(&data[0], data.size());
 }
 
-size_t SX1278::write(const char* buffer, size_t size)
+size_t SX1278::write(const char *buffer, size_t size)
 {
-	return write((uint8_t*)buffer, size);
+   return write((uint8_t *)buffer, size);
 }
 
 long SX1278::getSignalBandwidth()
@@ -266,8 +266,9 @@ void SX1278::setLdoFlag()
    bool ldoOn = symbolDuration > 16;
 
    uint8_t config3 = readReg(REG_MODEM_CONFIG_3);
-   //bitWrite(config3, 3, ldoOn);
+
    config3 = config3 & (ldoOn << 3);
+
    writeReg(REG_MODEM_CONFIG_3, config3);
 }
 
@@ -297,8 +298,15 @@ int SX1278::beginPacket(int implicitHeader)
    return 1;
 }
 
-int SX1278::endPacket()
+int SX1278::endPacket(bool async)
 {
+	if(async)
+	{
+		writeReg(REG_DIO_MAPPING_1, 0x40);
+		writeReg(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_TX);
+		return 1;
+	}
+
    // put in TX mode
    writeReg(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_TX);
 
@@ -650,7 +658,7 @@ void SX1278::writeReg(uint8_t reg, uint8_t value)
 void SX1278::pinConfig()
 {
 #ifdef PRINTER_DEBUG
-	printer.printString("SX1278 Pin Config");
+   printer.print("SX1278 Pin Config\n");
 #endif
 
    GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -680,7 +688,7 @@ void SX1278::pinConfig()
 void SX1278::hwReset()
 {
 #ifdef PRINTER_DEBUG
-	printer.printString("SX1278 Resetting...");
+   printer.print("SX1278 Resetting...\n");
 #endif
    if (!resetPinDefined)
    {
@@ -694,5 +702,5 @@ void SX1278::hwReset()
 
 void SX1278::setSS(bool state)
 {
-	HAL_GPIO_WritePin(_portSS, _pinSS, state ? (GPIO_PIN_SET) : (GPIO_PIN_RESET));
+   HAL_GPIO_WritePin(_portSS, _pinSS, state ? (GPIO_PIN_SET) : (GPIO_PIN_RESET));
 }

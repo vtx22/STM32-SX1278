@@ -8,7 +8,6 @@
 #include "Printer.hpp"
 #endif
 
-
 #define REG_FIFO 0x00
 #define REG_OP_MODE 0x01
 #define REG_FRF_MSB 0x06
@@ -53,8 +52,8 @@
 #define MODE_RX_CONTINUOUS 0x05
 #define MODE_RX_SINGLE 0x06
 
-#define PA_OUTPUT_RFO_PIN          0
-#define PA_OUTPUT_PA_BOOST_PIN     1
+#define PA_OUTPUT_RFO_PIN 0
+#define PA_OUTPUT_PA_BOOST_PIN 1
 
 // PA config
 #define PA_BOOST 0x80
@@ -91,7 +90,7 @@ public:
    void setPreambleLength(long length);
 
    int beginPacket(int implicitHeader);
-   int endPacket();
+   int endPacket(bool async);
    int parsePacket(int size);
    int read();
    int available();
@@ -101,7 +100,7 @@ public:
    int packetRssi();
    float packetSnr();
    size_t write(const uint8_t *buffer, size_t size);
-   size_t write(const char* buffer, size_t size);
+   size_t write(const char *buffer, size_t size);
    size_t write(std::vector<uint8_t> data);
    size_t write(std::vector<char> data);
 
@@ -111,10 +110,7 @@ private:
    void hwReset();
    void setMode(uint8_t mode);
 
-
-
    int getSpreadingFactor();
-
 
    long getSignalBandwidth();
    void setLdoFlag();
@@ -127,20 +123,13 @@ private:
    void disableInvertIQ();
    void enableInvertIQ();
 
-
-
-
-
    void setGain(uint8_t gain);
    uint8_t random();
    void setOCP(uint8_t mA);
 
    void setCodingRate4(int denominator);
 
-
-
    int peek();
-
 
    long packetFrequencyError();
 
@@ -156,7 +145,7 @@ private:
    GPIO_TypeDef *_portRST;
    uint16_t _pinRST;
 
-   GPIO_TypeDef * _portDIO0;
+   GPIO_TypeDef *_portDIO0;
    uint16_t _pinDIO0;
 
    bool resetPinDefined = false;
