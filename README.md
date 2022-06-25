@@ -28,3 +28,10 @@ sx.beginPacket(0);          // Set SX1278 to Transmit Mode
 sx.write(msg, 4);           // Transmit Message (with size = 4 bytes)
 sx.endPacket(false);        // Wait for Transmit to be complete, with async = false --> endPacket blocks until transmit is complete
 ```
+The following write functions are usable:
+```C++
+   size_t write(const uint8_t *buffer, size_t size);
+   size_t write(const char *buffer, size_t size);
+   size_t write(std::vector<uint8_t> data);
+   size_t write(std::vector<char> data);
+```
