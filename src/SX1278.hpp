@@ -149,7 +149,7 @@ private:
    uint16_t _pinDIO0;
 
    bool resetPinDefined = false;
-   bool useDIO0 = false;
+   bool dio0PinDefined = false;
    int _implicitHeaderMode = 0;
    long _frequency = 433E6;
    int _packetIndex = 0;
