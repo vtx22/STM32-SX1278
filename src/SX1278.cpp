@@ -19,6 +19,23 @@ SX1278::SX1278(SPI_HandleTypeDef *spi, GPIO_TypeDef *portSS, uint16_t pinSS, GPI
 	init();
 }
 
+void SX1278::setDIO0(GPIO_TypeDef *portDIO0, uint16_t pinDIO0)
+{
+	_portDIO0 = portDIO0;
+	_pinDIO0 = pinDIO0;
+
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+	GPIO_InitStruct.Pin = _pinDIO0;
+	GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+	HAL_GPIO_Init(_portDIO0, &GPIO_InitStruct);
+
+	useDIO0 = true;
+
+}
+
 SX1278::~SX1278()
 {
    setMode(MODE_SLEEP);
@@ -43,6 +60,9 @@ bool SX1278::init()
 
    // put in sleep mode
    setMode(MODE_SLEEP);
+
+   // Set Gain to max
+   setGain(6);
 
    // set frequency
    setFrequency(_frequency);
@@ -617,12 +637,14 @@ void SX1278::pinConfig()
 #ifdef PRINTER_DEBUG
 	printer.printString("SX1278 Pin Config");
 #endif
+
    GPIO_InitTypeDef GPIO_InitStruct = {0};
 
    GPIO_InitStruct.Pin = _pinSS;
    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
    GPIO_InitStruct.Pull = GPIO_NOPULL;
    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+
    HAL_GPIO_Init(_portSS, &GPIO_InitStruct);
 
    if (resetPinDefined)
@@ -631,7 +653,9 @@ void SX1278::pinConfig()
       GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
       GPIO_InitStruct.Pull = GPIO_NOPULL;
       GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+
       HAL_GPIO_Init(_portRST, &GPIO_InitStruct);
+
       HAL_GPIO_WritePin(_portRST, _pinRST, GPIO_PIN_SET);
    }
 

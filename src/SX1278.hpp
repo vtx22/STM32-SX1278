@@ -1,6 +1,9 @@
 #pragma once
 #include "stm32f1xx_hal.h"
+#include "stm32f1xx_hal_gpio.h"
 
+
+#define PRINTER_DEBUG
 #ifdef PRINTER_DEBUG
 #include "Printer.hpp"
 #endif
@@ -74,9 +77,10 @@ public:
    SX1278(SPI_HandleTypeDef *spi, GPIO_TypeDef *portSS, uint16_t pinSS, GPIO_TypeDef *portRST, uint16_t pinRST);
    ~SX1278();
 
+   void setDIO0(GPIO_TypeDef *portDIO0, uint16_t pinDIO0);
+
    void setTxPower(uint8_t level, int outputPin);
    void setFrequency(long frequency);
-
    void setSpreadingFactor(int sf);
    void setSignalBandwidth(long sbw);
 
@@ -148,7 +152,12 @@ private:
 
    GPIO_TypeDef *_portRST;
    uint16_t _pinRST;
+
+   GPIO_TypeDef * _portDIO0;
+   uint16_t _pinDIO0;
+
    bool resetPinDefined = false;
+   bool useDIO0 = false;
    int _implicitHeaderMode = 0;
    long _frequency = 433E6;
    int _packetIndex = 0;
