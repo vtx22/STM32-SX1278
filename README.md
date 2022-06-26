@@ -7,7 +7,7 @@ Based heavily on the Arduino LoRa Library https://github.com/sandeepmistry/ardui
 
 # USAGE
 ## Prerequisites
-Using the library requires a configured SPI Interface for cummunication. If you are using the STM CubeIDE enable the SPI interface by using the .ioc file.
+Using the library requires a configured SPI Interface for communication. If you are using the STM CubeIDE enable the SPI interface by using the .ioc file.
 
 ![Alt text](/img/CubeIDE_spi.png?raw=true "CubeIDE SPI Interface Configuration")
 
