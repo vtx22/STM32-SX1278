@@ -6,6 +6,10 @@ Based heavily on the Arduino LoRa Library https://github.com/sandeepmistry/ardui
 **IMPORTANT: The Lib is still incomplete and in testing. Many features are not implemented. Not recommended for use as of right now!**
 
 # USAGE
+## Prerequisites
+Using the library requires a configured SPI Interface for cummunication. If you are using the STM CubeIDE enable the SPI interface by using the .ioc file.
+
+
 
 ## Include Library
 
