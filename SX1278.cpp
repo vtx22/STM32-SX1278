@@ -52,3 +52,14 @@ void SX1278::_write_reg(uint8_t reg, uint8_t value)
     HAL_SPI_Transmit(_hspi, msg, 2, 1);
     SET_SX_NSS(true);
 }
+
+uint8_t SX1278::_read_reg(uint8_t reg)
+{
+    uint8_t msg = reg & 0x7F;
+    uint8_t value = 0;
+    SET_SX_NSS(false);
+    HAL_SPI_Transmit(_hspi, &msg, 1, 1);
+    HAL_SPI_Receive(_hspi, &value, 1, 1);
+    SET_SX_NSS(true);
+    return value;
+}
