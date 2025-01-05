@@ -37,6 +37,7 @@ public:
     void reset();
     bool init();
 
+    void set_frequency(uint32_t frequency);
 private:
     void _write_reg(uint8_t reg, uint8_t value);
     uint8_t _read_reg(uint8_t reg);
@@ -47,4 +48,6 @@ private:
     GPIO_TypeDef *_dio0_port = nullptr;
     GPIO_TypeDef *_nss_port = nullptr;
     uint16_t _rst_pin, _dio0_pin, _nss_pin;
+
+    uint32_t _frequency = 433e6;
 };

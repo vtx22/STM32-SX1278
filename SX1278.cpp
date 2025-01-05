@@ -47,6 +47,17 @@ bool SX1278::init()
     return true;
 }
 
+void SX1278::set_frequency(uint32_t frequency)
+{
+    _frequency = frequency;
+
+    uint64_t frf = ((uint64_t)frequency << 19) / 32000000;
+
+    _write_reg(REG_FRF_MSB, (uint8_t)(frf >> 16));
+    _write_reg(REG_FRF_MID, (uint8_t)(frf >> 8));
+    _write_reg(REG_FRF_LSB, (uint8_t)(frf >> 0));
+}
+
 void SX1278::_write_reg(uint8_t reg, uint8_t value)
 {
     uint8_t msg[2] = {reg | 0x80, value};
