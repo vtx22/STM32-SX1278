@@ -3,7 +3,6 @@
 #include "SX1278_reg.hpp"
 
 #include <cstdint>
-#include "I2C.h"
 
 // Use the following flags for compiling the right library, e.g.: -D STM32F1
 #if defined(STM32F0)
