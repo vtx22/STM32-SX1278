@@ -23,6 +23,8 @@
 #error "Unsupported STM32 microcontroller. Make sure you build with -D STM32F1 for example!"
 #endif
 
+#define SET_SX_NNS(value) HAL_GPIO_WritePin(_nss_port, _nss_pin, (value) ? GPIO_PIN_SET : GPIO_PIN_RESET)
+
 class SX1278
 {
 public:
