@@ -44,6 +44,11 @@ bool SX1278::init()
     SET_SX_NSS(true);
     reset();
 
+    if (_read_reg(REG_VERSION) != 0x12)
+    {
+        return false;
+    }
+
     return true;
 }
 
