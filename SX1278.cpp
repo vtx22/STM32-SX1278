@@ -41,14 +41,14 @@ bool SX1278::init()
         return false;
     }
 
-    SET_SX_NNS(true);
+    SET_SX_NSS(true);
     reset();
 }
 
 void SX1278::_write_reg(uint8_t reg, uint8_t value)
 {
     uint8_t msg[2] = {reg | 0x80, value};
-    SET_SX_NNS(false);
+    SET_SX_NSS(false);
     HAL_SPI_Transmit(_hspi, msg, 2, 1);
-    SET_SX_NNS(true);
+    SET_SX_NSS(true);
 }
