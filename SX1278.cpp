@@ -33,4 +33,10 @@ void SX1278::reset()
     HAL_Delay(100);
     HAL_GPIO_WritePin(_rst_port, _rst_pin, GPIO_PIN_SET);
 }
+void SX1278::_write_reg(uint8_t reg, uint8_t value)
+{
+    uint8_t msg[2] = {reg | 0x80, value};
+    SET_SX_NNS(false);
+    HAL_SPI_Transmit(_hspi, msg, 2, 1);
+    SET_SX_NNS(true);
 }

@@ -36,6 +36,8 @@ public:
 
     void reset();
 private:
+    void _write_reg(uint8_t reg, uint8_t value);
+
     SPI_HandleTypeDef *_hspi;
 
     GPIO_TypeDef *_rst_port = nullptr;
