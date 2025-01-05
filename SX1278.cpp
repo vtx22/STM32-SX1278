@@ -58,6 +58,19 @@ void SX1278::set_frequency(uint32_t frequency)
     _write_reg(REG_FRF_LSB, (uint8_t)(frf >> 0));
 }
 
+void SX1278::implicit_header_mode()
+{
+    _implicit_header_mode = 1;
+
+    _write_reg(REG_MODEM_CONFIG_1, _read_reg(REG_MODEM_CONFIG_1) | 0x01);
+}
+
+void SX1278::explicit_header_mode()
+{
+    _implicit_header_mode = 0;
+    _write_reg(REG_MODEM_CONFIG_1, _read_reg(REG_MODEM_CONFIG_1) & 0xFE);
+}
+
 void SX1278::_write_reg(uint8_t reg, uint8_t value)
 {
     uint8_t msg[2] = {reg | 0x80, value};
