@@ -32,6 +32,7 @@ public:
     void set_dio0_pin(GPIO_TypeDef *port, uint16_t pin);
     void set_nss_pin(GPIO_TypeDef *port, uint16_t pin);
 
+    void reset();
 private:
     SPI_HandleTypeDef *_hspi;
 

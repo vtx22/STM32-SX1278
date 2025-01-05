@@ -21,4 +21,16 @@ void SX1278::set_nss_pin(GPIO_TypeDef *port, uint16_t pin)
     _nss_port = port;
     _nss_pin = pin;
 }
+
+void SX1278::reset()
+{
+    if (_nss_port == nullptr)
+    {
+        return;
+    }
+
+    HAL_GPIO_WritePin(_rst_port, _rst_pin, GPIO_PIN_RESET);
+    HAL_Delay(100);
+    HAL_GPIO_WritePin(_rst_port, _rst_pin, GPIO_PIN_SET);
+}
 }
