@@ -26,7 +26,17 @@
 class SX1278
 {
 public:
-    SX1278();
+    SX1278(SPI_HandleTypeDef *hspi);
+
+    void set_reset_pin(GPIO_TypeDef *port, uint16_t pin);
+    void set_dio0_pin(GPIO_TypeDef *port, uint16_t pin);
+    void set_nss_pin(GPIO_TypeDef *port, uint16_t pin);
 
 private:
+    SPI_HandleTypeDef *_hspi;
+
+    GPIO_TypeDef *_rst_port = nullptr;
+    GPIO_TypeDef *_dio0_port = nullptr;
+    GPIO_TypeDef *_nss_port = nullptr;
+    uint16_t _rst_pin, _dio0_pin, _nss_pin;
 };
