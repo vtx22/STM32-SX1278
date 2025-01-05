@@ -43,6 +43,8 @@ bool SX1278::init()
 
     SET_SX_NSS(true);
     reset();
+
+    return true;
 }
 
 void SX1278::_write_reg(uint8_t reg, uint8_t value)
