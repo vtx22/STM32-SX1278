@@ -35,6 +35,8 @@ public:
     void set_nss_pin(GPIO_TypeDef *port, uint16_t pin);
 
     void reset();
+    bool init();
+
 private:
     void _write_reg(uint8_t reg, uint8_t value);
 
