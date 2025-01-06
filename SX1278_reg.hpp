@@ -1,5 +1,7 @@
 #pragma once
 
+#define SX1278_SPI_MAX_DELAY 1
+
 #define REG_FIFO 0x00
 #define REG_OP_MODE 0x01
 #define REG_FRF_MSB 0x06
