@@ -32,6 +32,7 @@ void SX1278::reset()
     HAL_GPIO_WritePin(_rst_port, _rst_pin, GPIO_PIN_RESET);
     HAL_Delay(100);
     HAL_GPIO_WritePin(_rst_port, _rst_pin, GPIO_PIN_SET);
+    HAL_Delay(100);
 }
 
 bool SX1278::init()
